@@ -70,6 +70,8 @@ async function handler(
             {
               attributes: {
                 metadata: JSON.stringify(metadata),
+                syncBranch,
+                syncSource,
                 syncTarget,
               },
             },
@@ -279,31 +281,6 @@ async function handler(
               return result;
             }
           );
-
-          // 1.4 automatically merge pull_request if all required checks pass
-          // await tracer.startActiveSpan(
-          //   `app.handler.push.${repo.name}_sync_upstream.create_pr.pr.auto_merge_pr`,
-          //   {
-          //     attributes: { functionality: "automatically merge pull_request" },
-          //   },
-          //   async (span: Span) => {
-          //     // https://octokit.github.io/rest.js/v18#pulls-merge
-          //     await extension.octokit.pulls.merge({
-          //       repo: metadata.repo,
-          //       owner: metadata.owner,
-          //       pull_number: pr.number,
-          //       merge_method: "squash",
-          //     });
-          //     const msg = "🛫 All good, merge to main.";
-          //     app.log.info(msg);
-          //     span.addEvent(msg);
-          //     await extension.tg.sendMsg(msg, [
-          //       process.env.TELEGRAM_DAEUNIVERSE_AUDIT_CHANNEL_ID!,
-          //     ]);
-
-          //     span.end();
-          //   }
-          // );
 
           // 1.4 audit event
           await tracer.startActiveSpan(

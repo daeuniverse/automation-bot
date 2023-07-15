@@ -55,6 +55,7 @@ async function handler(
         const comment = context.issue({
           body: "Thanks for opening this issue!",
         });
+        // https://octokit.github.io/rest.js/v18#issues-create-comment
         await extension.octokit.issues.createComment(comment);
       } catch (err: any) {
         app.log.error(err);
