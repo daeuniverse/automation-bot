@@ -79,7 +79,7 @@ async function handler(
 
   // case_#1: auto-merge sync-upstream pr in [dae-wing,daed]
   if (
-    ["daed-1"].includes(repo.name) &&
+    ["daed"].includes(repo.name) &&
     metadata.check_run.name.includes("build-passed") &&
     !metadata.check_run.name.includes("instantiate") &&
     metadata.check_run.status == "completed" &&
@@ -145,7 +145,7 @@ async function handler(
                 .get({
                   owner: repo.owner,
                   repo: repo.name,
-                  pull_number: metadata.pull_request.number,
+                  pull_number: metadata.pull_request?.number,
                 })
                 .then((res) => res.data);
 
