@@ -114,9 +114,9 @@ async function handler(
               attributes: {
                 functionality:
                   "write pre-auto-merge comment in the associated PR",
-                pr_number: metadata.pull_request.number,
-                pr_head_sha: metadata.pull_request.head.sha,
-                pr_head_ref: metadata.pull_request.head.ref,
+                pr_number: metadata.pull_request?.number,
+                pr_head_sha: metadata.pull_request?.head.sha,
+                pr_head_ref: metadata.pull_request?.head.ref,
               },
             },
             async (span: Span) => {
@@ -124,7 +124,7 @@ async function handler(
               await extension.octokit.issues.createComment({
                 owner: repo.owner,
                 repo: repo.name,
-                issue_number: metadata.pull_request.number,
+                issue_number: metadata.pull_request?.number,
                 body: `⚡ Build passed, automatically closed and merged. Check run details: ${metadata.check_run.html_url}`,
               });
 
