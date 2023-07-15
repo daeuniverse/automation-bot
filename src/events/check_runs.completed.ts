@@ -37,7 +37,7 @@ async function handler(
       completed_at: context.payload.check_run.completed_at,
     },
     pull_request:
-      context.payload.check_run.pull_request.length > 0
+      context.payload.check_run.pull_requests.length > 0
         ? {
             number: context.payload.check_run.pull_requests[0].number,
             head: {
