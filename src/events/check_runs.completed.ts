@@ -78,7 +78,7 @@ async function handler(
     !metadata.check_run.name.includes("instantiate") &&
     metadata.check_run.status == "completed" &&
     metadata.pull_request &&
-    // metadata.pull_request.head.ref == syncBranch &&
+    metadata.pull_request.head.ref == syncBranch &&
     metadata.check_run.conclusion == "success"
   )
     await tracer.startActiveSpan(
