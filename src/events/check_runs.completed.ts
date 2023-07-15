@@ -22,12 +22,6 @@ async function handler(
   extension: Extension
 ): Promise<Result> {
   const syncBranch = "sync-upstream";
-  // set syncSource [dae|dae-wing] based on the source commit [dae-wing|daed], respectively
-  const syncSource =
-    context.payload.repository.name == "dae-wing" ? "dae" : "dae-wing";
-  // set syncTarget [dae-wing|daed] based on the source commit [dae|dae-wing], respectively
-  const syncTarget =
-    context.payload.repository.name == "dae" ? "dae-wing" : "daed";
   const metadata = {
     repo: repo.name,
     owner: repo.owner,
@@ -97,9 +91,8 @@ async function handler(
             {
               attributes: {
                 metadata: JSON.stringify(metadata),
-                syncBranch,
-                syncSource,
-                syncTarget,
+                sync_branch: syncBranch,
+                sync_target: repo.name,
               },
             },
             async (span: Span) => {
