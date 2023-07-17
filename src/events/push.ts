@@ -201,7 +201,11 @@ async function handler(
           );
 
           // 1.3 create a pull_request with head (sync-upstream) and base (main) for daed
-          const msg = `⏳ ${repo.name} (origin/${metadata.default_branch}) is currently out-of-sync to ${syncSource} (origin/${metadata.default_branch}); changes are proposed by @daebot in actions - ${latestWorkflowRun}`;
+          const msg = `
+⏳ ${repo.name} (origin/${metadata.default_branch}) is currently out-of-sync to ${syncSource} (origin/${metadata.default_branch}); changes are proposed by @daebot in actions - ${latestWorkflowRun}
+
+## Changelogs
+`.trim();
 
           const pr = await tracer.startActiveSpan(
             `app.handler.push.${repo.name}_sync_upstream.create_pr.create`,
