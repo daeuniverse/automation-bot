@@ -8,6 +8,7 @@ import PullRequestLabelHandler from "./events/pull_request.labeled";
 import IssueCloseHandler from "./events/issues.closed";
 import IssueOpenHandler from "./events/issues.opened";
 import IssueCommentCreateHandler from "./events/issue_comment.created";
+import WorkflowRunCompleteHandler from "./events/workflow_run.completed";
 import PushHandler from "./events/push";
 
 export interface Configuration {
@@ -24,6 +25,7 @@ export const Handlers: HandlerModule[] = [
   IssueCloseHandler,
   IssueOpenHandler,
   IssueCommentCreateHandler,
+  WorkflowRunCompleteHandler,
   PushHandler,
 ];
 

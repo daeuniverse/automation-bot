@@ -13,6 +13,7 @@ export default (app: Probot) => {
   app.on(
     [
       "push",
+      "workflow_run.completed",
       "star.created",
       "issues.opened",
       "issues.closed",
