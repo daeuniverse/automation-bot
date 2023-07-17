@@ -120,6 +120,7 @@ async function handler(
 
   // case_#2: create a release tag when release_branch is merged; ONLY with release:auto tag
   if (
+    ["dae", "daed"].includes(metadata.repo) &&
     metadata.pull_request.merged &&
     metadata.pull_request.ref.startsWith("release-v") &&
     metadata.pull_request.labels.includes("release:auto") &&
