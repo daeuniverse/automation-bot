@@ -209,7 +209,7 @@ async function handler(
             metadata.default_branch
           }); changes are proposed by @daebot in actions - ${latestWorkflowRun}
 
-${syncTarget == "dae-wing" && "## Changelogs"}
+${syncTarget == "dae-wing" ? "## Changelogs" : ""}
 `.trim();
 
           const pr = await tracer.startActiveSpan(
