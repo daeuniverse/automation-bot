@@ -13,7 +13,6 @@ export default (app: Probot) => {
   app.on(
     [
       "push",
-      "workflow_run.completed",
       "star.created",
       "issues.opened",
       "issues.closed",
@@ -24,6 +23,7 @@ export default (app: Probot) => {
       "pull_request.labeled",
       "release.published",
       "check_run.completed",
+      "workflow_run.completed",
     ],
     async (context: Context<any>) => {
       const full_event = context.payload.action
