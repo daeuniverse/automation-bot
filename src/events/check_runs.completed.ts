@@ -36,40 +36,31 @@ async function handler(
       started_at: context.payload.check_run.started_at,
       completed_at: context.payload.check_run.completed_at,
     },
-    pull_request:
-      context.payload.check_run.pull_requests.length > 0
-        ? {
-            number: context.payload.check_run.pull_requests[0].number,
-            head: {
-              ref: context.payload.check_run.pull_requests[0].head.ref,
-              sha: context.payload.check_run.pull_requests[0].head.sha,
-            },
-            base: {
-              ref: context.payload.check_run.pull_requests[0].base.ref,
-              sha: context.payload.check_run.pull_requests[0].base.sha,
-            },
-          }
-        : null,
+    pull_request: {
+      number: context.payload.check_run.pull_requests[0].number,
+      head: {
+        ref: context.payload.check_run.pull_requests[0].head.ref,
+        sha: context.payload.check_run.pull_requests[0].head.sha,
+      },
+      base: {
+        ref: context.payload.check_run.pull_requests[0].base.ref,
+        sha: context.payload.check_run.pull_requests[0].base.sha,
+      },
+    },
   };
 
   // instantiate span
-  if (
-    metadata.check_run.name.includes("dae-bot") &&
-    metadata.check_run.conclusion == "success" &&
-    metadata.pull_request
-  ) {
-    await tracer.startActiveSpan(
-      "app.handler.check_run.completed.event_logging",
-      async (span: Span) => {
-        const logs = `received a check_run.completed event: ${JSON.stringify(
-          metadata
-        )}`;
-        app.log.info(logs);
-        span.addEvent(logs);
-        span.end();
-      }
-    );
-  }
+  await tracer.startActiveSpan(
+    "app.handler.check_run.completed.event_logging",
+    async (span: Span) => {
+      const logs = `received a check_run.completed event: ${JSON.stringify(
+        metadata
+      )}`;
+      app.log.info(logs);
+      span.addEvent(logs);
+      span.end();
+    }
+  );
 
   // case_#1: auto-merge sync-upstream pr in [dae-wing,daed]
   if (
