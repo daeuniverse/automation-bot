@@ -18,14 +18,17 @@ const main = async () => {
     });
     const octokit = new Octokit({ auth: installationAuth.token });
 
-    // create pull_request_review request
-    // https://octokit.github.io/rest.js/v18#pulls-merge
-    await octokit.rest.pulls.merge({
-      repo: "daed-1",
-      owner: "daeuniverse",
-      pull_number: 18,
-      merge_method: "squash",
-    });
+    // list pull_request_review request
+    // https://octokit.github.io/rest.js/v18#pulls-list
+    const result = await octokit.rest.pulls
+      .list({
+        repo: "dae-wing",
+        owner: "daeuniverse",
+        state: "closed",
+        per_page: 5,
+      })
+      .then((res) => res.data);
+    console.log(result);
   } catch (err: any) {
     console.log(err);
   }
