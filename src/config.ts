@@ -10,6 +10,7 @@ import IssueOpenHandler from "./events/issues.opened";
 import IssueCommentCreateHandler from "./events/issue_comment.created";
 import WorkflowRunCompleteHandler from "./events/workflow_run.completed";
 import PushHandler from "./events/push";
+import CheckRunCompleteHandler from "./events/check_runs.completed";
 
 export interface Configuration {
   app_name: string;
@@ -27,6 +28,7 @@ export const Handlers: HandlerModule[] = [
   IssueCommentCreateHandler,
   WorkflowRunCompleteHandler,
   PushHandler,
+  CheckRunCompleteHandler,
 ];
 
 export const AppConfig: Configuration = {
