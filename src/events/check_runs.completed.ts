@@ -59,7 +59,7 @@ async function handler(
     metadata.pull_request
   ) {
     await tracer.startActiveSpan(
-      "app.handler.star.created.event_logging",
+      "app.handler.check_run.completed.event_logging",
       async (span: Span) => {
         const logs = `received a check_run.completed event: ${JSON.stringify(
           metadata
