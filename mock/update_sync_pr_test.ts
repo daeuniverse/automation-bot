@@ -53,7 +53,7 @@ ${context}
 ---
 `.trim();
 
-        // update PR description
+        // 1.3 update PR description
         octokit.rest.pulls.update({
           owner: "daeuniverse",
           repo: "dae-wing",
