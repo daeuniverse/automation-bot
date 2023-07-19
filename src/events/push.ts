@@ -44,7 +44,7 @@ async function handler(
   // case_#1 trigger sync_target.sync-upstream workflow if new changes are pushed to [dae|dae-wing] origin/main
   if (
     context.payload.ref == "refs/heads/main" &&
-    ["dae", "dae-wing"].includes(context.payload.repository.name)
+    ["dae", "dae-wing"].includes(repo.name)
   ) {
     await tracer.startActiveSpan(
       `app.handler.push.${syncTarget}_sync_upstream.trigger_workflow`,
