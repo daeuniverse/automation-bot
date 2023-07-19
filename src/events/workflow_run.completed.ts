@@ -25,6 +25,8 @@ async function handler(
   const syncSource = "dae";
   const syncTarget = "dae-wing";
   const syncWorkflowName = "Synchronize Upstream";
+  const spliter =
+    "<!--- Why is this change required? What problem does it solve? -->";
 
   const metadata = {
     repo: repo.name,
@@ -127,6 +129,11 @@ async function handler(
               },
             },
             async (span: Span) => {
+              const prContext = `${
+                pr.body?.split("### Checklist")[0].split(spliter)[1]
+              }
+      `.trim();
+
               // https://octokit.github.io/rest.js/v18#pulls-update
               const result = await extension.octokit.rest.pulls
                 .list({
@@ -148,7 +155,7 @@ Ref: <${pr.html_url}>
 
 Context:
 
-${context}
+${prContext}
 
 ---
 `.trim();
