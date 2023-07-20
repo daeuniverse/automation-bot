@@ -24,6 +24,7 @@ export default (app: Probot) => {
       "pull_request.labeled",
       "release.published",
       "check_run.completed",
+      "workflow_run.completed",
     ],
     async (context: Context<any>) => {
       const full_event = context.payload.action
