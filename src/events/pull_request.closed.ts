@@ -202,7 +202,7 @@ async function handler(
                   owner: metadata.owner,
                   repo: metadata.repo,
                   workflow_id: prerelease ? "prerelease.yml" : "release.yml",
-                  ref: metadata.default_branch,
+                  ref: `refs/tags/${tag}`,
                   inputs: {
                     tag: tag,
                   },
