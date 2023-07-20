@@ -9,17 +9,6 @@ import {
 } from "../common";
 import { tracer } from "../trace";
 
-// https://www.regexgo.com
-const useRegex = (input: string): number | null => {
-  let re = /([0-9]+)/;
-  if (re.test(input)) {
-    const result = input.match(re)!;
-    return parseInt(result[0]);
-  } else {
-    return null;
-  }
-};
-
 // https://docs.github.com/en/webhooks-and-events/webhooks/webhook-events-and-payloads?actionType=completed#workflow_run
 export = {
   name: "workflow_run.completed",
@@ -33,6 +22,7 @@ async function handler(
   repo: Repository,
   extension: Extension
 ): Promise<Result> {
+  const prFetchLimit = 50;
   const syncSource = "dae";
   const syncTarget = "dae-wing";
   const syncWorkflowName = "Synchronize Upstream";
@@ -114,64 +104,64 @@ async function handler(
               },
             },
             async (span: Span) => {
-              var result = null;
               // https://octokit.github.io/rest.js/v18#repos-list-commits
-              const commits = await extension.octokit.rest.repos
+              const headCommitSha = await extension.octokit.rest.repos
                 .listCommits({
                   repo: "dae",
                   owner: "daeuniverse",
                   per_page: 1,
                 })
-                .then((res) => res.data[0].commit.message);
-              const prNumber = useRegex(commits);
+                .then((res) => res.data[0].sha);
 
-              if (prNumber) {
-                // https://octokit.github.io/rest.js/v18#pulls-get
-                result = await extension.octokit.rest.pulls
-                  .get({
-                    repo: syncSource,
-                    owner: repo.owner,
-                    pull_number: prNumber,
-                  })
-                  .then((res) => res.data);
-                console.log(result);
-              }
+              // https://octokit.github.io/rest.js/v18#pulls-get
+              const result = await extension.octokit.rest.pulls
+                .list({
+                  repo: syncSource,
+                  owner: repo.owner,
+                  state: "closed",
+                  per_page: prFetchLimit,
+                })
+                .then(
+                  (res) =>
+                    res.data.filter(
+                      (pr) => pr.merge_commit_sha === headCommitSha
+                    )[0]
+                );
 
-              span.end();
               span.addEvent(JSON.stringify(result));
+              span.end();
               return result;
             }
           );
 
-          if (pr) {
-            // 1.2 update dae-wing sync pr description
-            const syncPR = await tracer.startActiveSpan(
-              `app.handler.workflow_run.completed.${syncTarget}.update_pr_context.update_pr_description`,
-              {
-                attributes: {
-                  functionality: "update dae-wing sync pr description",
-                  upstream_pr: JSON.stringify(pr),
-                },
+          // 1.2 update dae-wing sync pr description
+          const syncPR = await tracer.startActiveSpan(
+            `app.handler.workflow_run.completed.${syncTarget}.update_pr_context.update_pr_description`,
+            {
+              attributes: {
+                functionality: "update dae-wing sync pr description",
+                upstream_pr: JSON.stringify(pr),
               },
-              async (span: Span) => {
-                const prContext = `${
-                  pr.body?.split("### Checklist")[0].split(spliter)[1]
-                }
+            },
+            async (span: Span) => {
+              const prContext = `${
+                pr.body?.split("### Checklist")[0].split(spliter)[1]
+              }
       `.trim();
 
-                // https://octokit.github.io/rest.js/v18#pulls-update
-                const result = await extension.octokit.rest.pulls
-                  .list({
-                    owner: "daeuniverse",
-                    repo: "dae-wing",
-                  })
-                  .then((res) => {
-                    const syncPR = res.data.filter((pr) =>
-                      pr.title.startsWith("chore(sync)")
-                    )[0];
+              // https://octokit.github.io/rest.js/v18#pulls-update
+              const result = await extension.octokit.rest.pulls
+                .list({
+                  owner: "daeuniverse",
+                  repo: "dae-wing",
+                })
+                .then((res) => {
+                  const syncPR = res.data.filter((pr) =>
+                    pr.title.startsWith("chore(sync)")
+                  )[0];
 
-                    // construct new PR description body
-                    const newBody = `
+                  // construct new PR description body
+                  const newBody = `
 ${syncPR.body}
 
 ### #${pr.number} - ${pr.title}
@@ -185,36 +175,35 @@ ${prContext}
 ---
 `.trim();
 
-                    // update PR description
-                    extension.octokit.rest.pulls.update({
-                      owner: "daeuniverse",
-                      repo: "dae-wing",
-                      pull_number: syncPR.number,
-                      body: newBody,
-                    });
-                    return syncPR;
+                  // update PR description
+                  extension.octokit.rest.pulls.update({
+                    owner: "daeuniverse",
+                    repo: "dae-wing",
+                    pull_number: syncPR.number,
+                    body: newBody,
                   });
+                  return syncPR;
+                });
 
-                span.end();
-                return result;
-              }
-            );
+              span.end();
+              return result;
+            }
+          );
 
-            // 1.3 audit event
-            await tracer.startActiveSpan(
-              `app.handler.workflow_run.completed.${syncTarget}.update_pr_context.audit_event`,
-              { attributes: { functionality: "audit event" } },
-              async (span: Span) => {
-                const msg = `⚡️ context of sync-upstream PR [(#${syncPR.number})](${syncPR.html_url}) in ${syncTarget} has been updated; upstream PR from ${syncSource} - [#${pr.number}: ${pr.title}](${pr.html_url}))`;
-                app.log.info(msg);
-                await extension.tg.sendMsg(msg, [
-                  process.env.TELEGRAM_DAEUNIVERSE_AUDIT_CHANNEL_ID!,
-                ]);
-                span.addEvent(msg);
-                span.end();
-              }
-            );
-          }
+          // 1.3 audit event
+          await tracer.startActiveSpan(
+            `app.handler.workflow_run.completed.${syncTarget}.update_pr_context.audit_event`,
+            { attributes: { functionality: "audit event" } },
+            async (span: Span) => {
+              const msg = `⚡️ context of sync-upstream PR [(#${syncPR.number})](${syncPR.html_url}) in ${syncTarget} has been updated; upstream PR from ${syncSource} - [#${pr.number}: ${pr.title}](${pr.html_url}))`;
+              app.log.info(msg);
+              await extension.tg.sendMsg(msg, [
+                process.env.TELEGRAM_DAEUNIVERSE_AUDIT_CHANNEL_ID!,
+              ]);
+              span.addEvent(msg);
+              span.end();
+            }
+          );
         } catch (err: any) {
           app.log.error(err);
           span.recordException(err);
