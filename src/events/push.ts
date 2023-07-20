@@ -24,11 +24,9 @@ async function handler(
   const head_commit = JSON.stringify(context.payload?.head_commit);
   const syncBranch = "sync-upstream";
   // set syncSource [dae|dae-wing] based on the source commit [dae-wing|daed], respectively
-  const syncSource =
-    context.payload.repository.name == "dae-wing" ? "dae" : "dae-wing";
+  const syncSource = repo.name == "dae-wing" ? "dae" : "dae-wing";
   // set syncTarget [dae-wing|daed] based on the source commit [dae|dae-wing], respectively
-  const syncTarget =
-    context.payload.repository.name == "dae" ? "dae-wing" : "daed";
+  const syncTarget = repo.name == "dae" ? "dae-wing" : "daed";
 
   // instantiate span
   await tracer.startActiveSpan(
@@ -47,7 +45,7 @@ async function handler(
     ["dae", "dae-wing"].includes(repo.name)
   ) {
     await tracer.startActiveSpan(
-      `app.handler.push.${syncTarget}_sync_upstream.trigger_workflow`,
+      `app.handler.push.${syncTarget}.sync_upstream.trigger_workflow`,
       {
         attributes: {
           case: `trigger ${syncTarget}.sync-upstream workflow if new changes are pushed to ${repo.name} origin/main`,
@@ -66,7 +64,7 @@ async function handler(
           };
 
           await tracer.startActiveSpan(
-            `app.handler.push.${syncTarget}_sync_upstream.trigger_workflow.metadata`,
+            `app.handler.push.${syncTarget}.sync_upstream.trigger_workflow.metadata`,
             {
               attributes: {
                 metadata: JSON.stringify(metadata),
@@ -82,7 +80,7 @@ async function handler(
 
           // 1.2 trigger sync_target sync-upstream-source workflow
           const latestRunUrl = await tracer.startActiveSpan(
-            `app.handler.push.${syncTarget}_sync_upstream.trigger_workflow.trigger`,
+            `app.handler.push.${syncTarget}.sync_upstream.trigger_workflow.trigger`,
             {
               attributes: {
                 functionality: `trigger ${syncTarget} sync-upstream-source workflow`,
@@ -118,7 +116,7 @@ async function handler(
 
           // 1.4 audit event
           await tracer.startActiveSpan(
-            `app.handler.push.${syncTarget}_sync_upstream.trigger_workflow.audit_event`,
+            `app.handler.push.${syncTarget}.sync_upstream.trigger_workflow.audit_event`,
             { attributes: { functionality: "audit event" } },
             async (span: Span) => {
               const msg = `🏗️ a new commit was pushed to ${repo.name} (${metadata.default_branch}); dispatched ${syncBranch} workflow for ${syncTarget}; url: ${latestRunUrl}`;
@@ -148,7 +146,7 @@ async function handler(
     context.payload.ref.split("/")[2] == syncBranch
   ) {
     await tracer.startActiveSpan(
-      `app.handler.push.${syncTarget}_sync_upstream.create_pr`,
+      `app.handler.push.${syncTarget}.sync_upstream.create_pr`,
       {
         attributes: {
           case: `create a pull_request when branch sync-upstream is created and pushed to ${syncTarget} (remote)`,
@@ -166,7 +164,7 @@ async function handler(
           };
 
           await tracer.startActiveSpan(
-            `app.handler.push.${repo.name}_sync_upstream.create_pr.metadata`,
+            `app.handler.push.${syncTarget}.sync_upstream.create_pr.metadata`,
             {
               attributes: {
                 metadata: JSON.stringify(metadata),
@@ -180,7 +178,7 @@ async function handler(
 
           // 1.2 fetch latest sync-upstream workflow run
           const latestWorkflowRun = await tracer.startActiveSpan(
-            `app.handler.push.${repo.name}_sync_upstream.create_pr.fetch_latest_workflow_run`,
+            `app.handler.push.${syncTarget}.sync_upstream.create_pr.fetch_latest_workflow_run`,
             {
               attributes: {
                 functionality: "fetch latest ${syncBranch} workflow run",
@@ -213,7 +211,7 @@ ${syncTarget == "dae-wing" ? "## Changelogs" : ""}
 `.trim();
 
           const pr = await tracer.startActiveSpan(
-            `app.handler.push.${repo.name}_sync_upstream.create_pr.create`,
+            `app.handler.push.${syncTarget}.sync_upstream.create_pr.create`,
             {
               attributes: {
                 functionality: `create a pull_request with head (${syncBranch}) and base (${metadata.default_branch}) for ${repo.name}`,
@@ -233,7 +231,7 @@ ${syncTarget == "dae-wing" ? "## Changelogs" : ""}
                 .then((res) => {
                   // 1.3.1 add labels
                   tracer.startActiveSpan(
-                    `app.handler.push.${repo.name}_sync_upstream.create_pr.pr.add_labels`,
+                    `app.handler.push.${syncTarget}.sync_upstream.create_pr.pr.add_labels`,
                     {
                       attributes: {
                         functionality: "add labels",
@@ -254,7 +252,7 @@ ${syncTarget == "dae-wing" ? "## Changelogs" : ""}
 
                   // 1.3.2 add assignee
                   tracer.startActiveSpan(
-                    `app.handler.push.${repo.name}_sync_upstream.create_pr.pr.add_assignee`,
+                    `app.handler.push.${syncTarget}.sync_upstream.create_pr.pr.add_assignee`,
                     {
                       attributes: {
                         functionality: "add assignee",
@@ -291,7 +289,7 @@ ${syncTarget == "dae-wing" ? "## Changelogs" : ""}
 
           // 1.4 audit event
           await tracer.startActiveSpan(
-            `app.handler.push.${repo.name}_sync_upstream.create_pr.pr.audit_event`,
+            `app.handler.push.${syncTarget}.sync_upstream.create_pr.pr.audit_event`,
             { attributes: { functionality: "audit event" } },
             async (span: Span) => {
               app.log.info(msg);

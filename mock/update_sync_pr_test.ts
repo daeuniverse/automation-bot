@@ -52,7 +52,7 @@ ${syncPR.body}
 
 ### #${pr.number} - ${pr.title}
 
-Ref: <${pr.html_url}>
+PR: <${pr.html_url}>
 
 Context:
 

@@ -113,7 +113,7 @@ async function handler(
                 })
                 .then((res) => res.data[0].sha);
 
-              // https://octokit.github.io/rest.js/v18#pulls-get
+              // https://octokit.github.io/rest.js/v18#pulls-list
               const result = await extension.octokit.rest.pulls
                 .list({
                   repo: syncSource,
@@ -166,7 +166,7 @@ ${syncPR.body}
 
 ### #${pr.number} - ${pr.title}
 
-Ref: <${pr.html_url}>
+PR: <${pr.html_url}>
 
 Context:
 
