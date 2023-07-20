@@ -4,17 +4,6 @@ const { createAppAuth } = require("@octokit/auth-app");
 import fs from "fs";
 var privateKey = fs.readFileSync("private-key-staging.pem", "utf8").toString();
 
-// https://www.regexgo.com
-const useRegex = (input: string): number | null => {
-  let re = /([0-9]+)/;
-  if (re.test(input)) {
-    const result = input.match(re)!;
-    return parseInt(result[0]);
-  } else {
-    return null;
-  }
-};
-
 // Compare: https://docs.github.com/en/rest/reference/users#get-the-authenticated-user
 const main = async () => {
   try {
@@ -30,25 +19,26 @@ const main = async () => {
     const octokit = new Octokit({ auth: installationAuth.token });
 
     // https://octokit.github.io/rest.js/v18#repos-list-commits
-    const result = await octokit.rest.repos
+    const headCommitSha = await octokit.rest.repos
       .listCommits({
         repo: "dae",
         owner: "daeuniverse",
         per_page: 1,
       })
-      .then((res) => res.data[0].commit.message);
-    const prNumber = useRegex(result);
-    if (prNumber) {
-      // https://octokit.github.io/rest.js/v18#pulls-get
-      const result = await octokit.rest.pulls
-        .get({
-          repo: "dae",
-          owner: "daeuniverse",
-          pull_number: prNumber,
-        })
-        .then((res) => res.data);
-      console.log(result);
-    }
+      .then((res) => res.data[0].sha);
+
+    // https://octokit.github.io/rest.js/v18#pulls-list
+    const pr = await octokit.rest.pulls
+      .list({
+        repo: "dae",
+        owner: "daeuniverse",
+        per_page: 50,
+        state: "closed",
+      })
+      .then((res) =>
+        res.data.filter((pr) => pr.merge_commit_sha === headCommitSha)
+      );
+    console.log(pr);
   } catch (err: any) {
     console.log(err);
   }
