@@ -34,7 +34,7 @@ export class APIGateway {
           this.metadata.check_run.conclusion === "success" &&
           this.metadata.check_run.pull_requests.length > 0;
         break;
-      case "check_run.completed":
+      case "workflow_run.completed":
         accepted =
           ["dae-wing"].includes(this.repo.name) &&
           this.metadata.workflow_run.conclusion === "success";
