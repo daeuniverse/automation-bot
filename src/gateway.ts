@@ -1,7 +1,7 @@
 import { Repository } from "./common";
 import { Context, Probot } from "probot";
 
-type isDesiredEvent = boolean | false;
+type isDesiredEvent = boolean;
 
 export class APIGateway {
   app: Probot;
