@@ -29,15 +29,27 @@ export class APIGateway {
 
     switch (this.event) {
       case "check_run.completed":
-        accepted =
+        if (
           this.metadata.check_run.name.includes("dae-bot") &&
+          this.metadata.check_run.name.includes("build-passed") &&
           this.metadata.check_run.conclusion === "success" &&
-          this.metadata.check_run.pull_requests.length > 0;
+          this.metadata.check_run.pull_requests.length > 0
+        )
+          accepted = true;
+
+        if (
+          this.metadata.check_run.name.includes("dae-bot") &&
+          this.metadata.check_run.conclusion === "failure" &&
+          this.metadata.check_run.pull_requests.length > 0
+        )
+          accepted = true;
         break;
       case "workflow_run.completed":
-        accepted =
+        if (
           ["dae-wing"].includes(this.repo.name) &&
-          this.metadata.workflow_run.conclusion === "success";
+          this.metadata.workflow_run.conclusion === "success"
+        )
+          accepted = true;
         break;
       default:
         break;
