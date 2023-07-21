@@ -29,9 +29,12 @@ export class APIGateway {
 
     switch (this.event) {
       case "check_run.completed":
+        accepted = false;
+
         if (
           this.metadata.check_run.name.includes("dae-bot") &&
           this.metadata.check_run.name.includes("build-passed") &&
+          !this.metadata.check_run.name.includes("instantiate") &&
           this.metadata.check_run.conclusion === "success" &&
           this.metadata.check_run.pull_requests.length > 0
         ) {
@@ -47,6 +50,8 @@ export class APIGateway {
         }
         break;
       case "workflow_run.completed":
+        accepted = false;
+
         if (
           ["dae-wing"].includes(this.repo.name) &&
           this.metadata.workflow_run.conclusion === "success"
