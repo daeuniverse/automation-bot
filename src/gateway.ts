@@ -63,7 +63,11 @@ export class APIGateway {
         break;
     }
 
-    !accepted && this.app.log.info("undesired event, dropped.");
+    if (!accepted) {
+      this.app.log.info("undesired event, dropped.");
+      this.app.log(`event context: ${JSON.stringify(this.metadata)}`);
+    }
+
     return accepted;
   }
 }
