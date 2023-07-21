@@ -33,7 +33,7 @@ export default (app: Probot) => {
 
       // API Gateway
       const gateway = new APIGateway(app, context, full_event);
-      const proceed = await gateway.acceptEvent();
+      const proceed = gateway.acceptEvent();
 
       if (proceed) {
         // Webhook Handlers

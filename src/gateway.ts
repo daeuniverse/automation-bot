@@ -23,10 +23,10 @@ export class APIGateway {
     this.accepted = true;
   }
 
-  async loadSubscriptions() {}
+  loadSubscriptions() {}
 
   // apply filters for a given event
-  async acceptEvent(): Promise<isDesiredEvent> {
+  acceptEvent(): isDesiredEvent {
     switch (this.event) {
       case "check_run.completed":
         this.accepted =
