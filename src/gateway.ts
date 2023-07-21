@@ -33,18 +33,8 @@ export class APIGateway {
 
         if (
           this.metadata.check_run.name.includes("dae-bot") &&
-          this.metadata.check_run.name.includes("build-passed") &&
-          !this.metadata.check_run.name.includes("instantiate") &&
-          this.metadata.check_run.conclusion === "success" &&
-          this.metadata.check_run.pull_requests.length > 0
-        ) {
-          accepted = true;
-        }
-
-        if (
-          this.metadata.check_run.name.includes("dae-bot") &&
-          this.metadata.check_run.conclusion === "failure" &&
-          this.metadata.check_run.pull_requests.length > 0
+          this.metadata.check_run.pull_requests.length > 0 &&
+          ["success", "failure"].includes(this.metadata.check_run.conclusion)
         ) {
           accepted = true;
         }
