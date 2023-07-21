@@ -22,6 +22,7 @@ async function handler(
   extension: Extension
 ): Promise<Result> {
   const syncBranch = "sync-upstream";
+  const syncTarget = "daed";
   const metadata = {
     repo: repo.name,
     owner: repo.owner,
@@ -52,6 +53,11 @@ async function handler(
   // instantiate span
   await tracer.startActiveSpan(
     "app.handler.check_run.completed.event_logging",
+    {
+      attributes: {
+        "check_run.name": metadata.check_run.name,
+      },
+    },
     async (span: Span) => {
       const logs = `received a check_run.completed event: ${JSON.stringify(
         metadata
@@ -62,9 +68,9 @@ async function handler(
     }
   );
 
-  // case_#1: auto-merge sync-upstream pr in [dae-wing,daed]
+  // case_#1: auto-merge sync-upstream pr in [daed]
   if (
-    ["daed"].includes(repo.name) &&
+    repo.name === syncTarget &&
     metadata.check_run.name.includes("build-passed") &&
     !metadata.check_run.name.includes("instantiate") &&
     metadata.check_run.status == "completed" &&
@@ -73,17 +79,17 @@ async function handler(
     metadata.check_run.conclusion == "success"
   )
     await tracer.startActiveSpan(
-      `app.handler.check_run.completed.${repo.name}.sync_upstream`,
+      `app.handler.check_run.completed.${syncTarget}.sync_upstream`,
       async (span: Span) => {
         try {
           // 1.1 construct metadata from payload
           await tracer.startActiveSpan(
-            `app.handler.check_run.completed.${repo.name}.sync_upstream.metadata`,
+            `app.handler.check_run.completed.${syncTarget}.sync_upstream.metadata`,
             {
               attributes: {
                 metadata: JSON.stringify(metadata),
                 sync_branch: syncBranch,
-                sync_target: repo.name,
+                sync_target: syncTarget,
               },
             },
             async (span: Span) => {
@@ -91,9 +97,32 @@ async function handler(
             }
           );
 
-          // 1.2 write pre-auto-merge comment in the associated PR
+          // 1.2 get the associated pr details
+          const pr = await tracer.startActiveSpan(
+            `app.handler.check_run.completed.${syncTarget}.sync_upstream.get_pr_details`,
+            {
+              attributes: {
+                functionality: "get the associated pr details",
+              },
+            },
+            async (span: Span) => {
+              const result = await extension.octokit.pulls
+                .get({
+                  owner: repo.owner,
+                  repo: repo.name,
+                  pull_number: metadata.pull_request?.number,
+                })
+                .then((res) => res.data);
+
+              span.addEvent(JSON.stringify(result));
+              span.end();
+              return result;
+            }
+          );
+
+          // 1.3 write pre-auto-merge comment in the associated PR
           await tracer.startActiveSpan(
-            `app.handler.check_run.completed.${repo.name}.sync_upstream.write_pr_comment`,
+            `app.handler.check_run.completed.${syncTarget}.sync_upstream.write_pr_comment`,
             {
               attributes: {
                 functionality:
@@ -116,36 +145,14 @@ async function handler(
             }
           );
 
-          // 1.3 get the associated pr details
-          const pr = await tracer.startActiveSpan(
-            `app.handler.check_run.completed.${repo.name}.sync_upstream.get_pr_details`,
-            {
-              attributes: {
-                functionality: "get the associated pr details",
-              },
-            },
-            async (span: Span) => {
-              const result = await extension.octokit.pulls
-                .get({
-                  owner: repo.owner,
-                  repo: repo.name,
-                  pull_number: metadata.pull_request?.number,
-                })
-                .then((res) => res.data);
-
-              span.addEvent(JSON.stringify(result));
-              span.end();
-              return result;
-            }
-          );
-
           // 1.4 automatically merge pull_request if all required checks pass
           await tracer.startActiveSpan(
-            `app.handler.check_run.completed.${repo.name}.sync_upstream.auto_merge_pr`,
+            `app.handler.check_run.completed.${syncTarget}.sync_upstream.auto_merge_pr`,
             {
               attributes: { functionality: "automatically merge pull_request" },
             },
             async (span: Span) => {
+              app.log.info("I am called!!!!");
               // https://octokit.github.io/rest.js/v18#pulls-merge
               await extension.octokit.pulls.merge({
                 repo: metadata.repo,
@@ -155,6 +162,7 @@ async function handler(
               });
               const msg = "🛫 All good, merged to main.";
               app.log.info(msg);
+
               span.addEvent(msg);
               span.end();
             }
@@ -162,7 +170,7 @@ async function handler(
 
           // 1.5 audit event
           await tracer.startActiveSpan(
-            `app.handler.check_run.completed.${repo.name}.sync_upstream.audit_event`,
+            `app.handler.check_run.completed.${syncTarget}.sync_upstream.audit_event`,
             { attributes: { functionality: "audit event" } },
             async (span: Span) => {
               const msg = `🛫 The workflow run associated with PR - [#${pr.number}: ${pr.title}](${pr.html_url}) has passed all the required checks; automatically closed and merged. Check-run details: ${metadata.check_run.html_url}`;
@@ -175,13 +183,13 @@ async function handler(
               span.end();
             }
           );
-
-          span.end();
         } catch (err: any) {
           app.log.error(err);
           span.recordException(err);
           span.setStatus({ code: SpanStatusCode.ERROR });
         }
+
+        span.end();
       }
     );
 
