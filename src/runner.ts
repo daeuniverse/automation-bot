@@ -23,6 +23,7 @@ export default async (
 
     span.setAttributes({ repo: JSON.stringify(repo) });
     const result = await module.handler(context, app, repo, extension);
+
     span.end();
     return result;
   });
