@@ -77,7 +77,7 @@ async function handler(
     metadata.pull_request &&
     metadata.pull_request.head.ref == syncBranch &&
     metadata.check_run.conclusion == "success"
-  )
+  ) {
     await tracer.startActiveSpan(
       `app.handler.check_run.completed.${syncTarget}.sync_upstream`,
       async (span: Span) => {
@@ -152,7 +152,6 @@ async function handler(
               attributes: { functionality: "automatically merge pull_request" },
             },
             async (span: Span) => {
-              app.log.info("I am called!!!!");
               // https://octokit.github.io/rest.js/v18#pulls-merge
               await extension.octokit.pulls.merge({
                 repo: metadata.repo,
@@ -192,6 +191,7 @@ async function handler(
         span.end();
       }
     );
+  }
 
   // fallback
   return { result: "ok!" };
