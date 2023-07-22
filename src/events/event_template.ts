@@ -43,7 +43,7 @@ async function handler(
   );
 
   // case_#1: auto-merge sync-upstream pr in [dae-wing,daed]
-  if (["daed-1"].includes(repo.name))
+  if (["daed-1"].includes(repo.name)) {
     await tracer.startActiveSpan(
       `app.handler.check_run.completed.${repo.name}.sync_upstream`,
       async (span: Span) => {
@@ -84,6 +84,7 @@ async function handler(
         span.end();
       }
     );
+  }
 
   // fallback
   return { result: "ok!" };
