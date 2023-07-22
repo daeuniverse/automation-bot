@@ -9,6 +9,7 @@ export class APIGateway {
   repo: Repository;
   event: string;
   metadata: Context<any>["payload"];
+  accepted: isDesiredEvent;
 
   constructor(app: Probot, context: Context<any>, event: string) {
     this.app = app;
@@ -19,46 +20,31 @@ export class APIGateway {
     };
     this.event = event;
     this.metadata = context.payload;
+    this.accepted = true;
   }
 
-  async loadSubscriptions() {}
+  loadSubscriptions() {}
 
   // apply filters for a given event
-  async acceptEvent(): Promise<isDesiredEvent> {
-    var accepted: isDesiredEvent = true;
-
+  acceptEvent(): isDesiredEvent {
     switch (this.event) {
       case "check_run.completed":
-        if (
+        this.accepted =
           this.metadata.check_run.name.includes("dae-bot") &&
-          this.metadata.check_run.name.includes("build-passed") &&
-          this.metadata.check_run.conclusion === "success" &&
-          this.metadata.check_run.pull_requests.length > 0
-        ) {
-          accepted = true;
-        }
-
-        if (
-          this.metadata.check_run.name.includes("dae-bot") &&
-          this.metadata.check_run.conclusion === "failure" &&
-          this.metadata.check_run.pull_requests.length > 0
-        ) {
-          accepted = true;
-        }
+          this.metadata.check_run.pull_requests.length > 0 &&
+          ["success", "failure"].includes(this.metadata.check_run.conclusion);
         break;
       case "workflow_run.completed":
-        if (
+        this.accepted =
           ["dae-wing"].includes(this.repo.name) &&
-          this.metadata.workflow_run.conclusion === "success"
-        ) {
-          accepted = true;
-        }
+          this.metadata.workflow_run.conclusion === "success";
         break;
       default:
         break;
     }
 
-    !accepted && this.app.log.info("undesired event, dropped.");
-    return accepted;
+    !this.accepted && this.app.log.info("undesired event, dropped.");
+
+    return this.accepted;
   }
 }

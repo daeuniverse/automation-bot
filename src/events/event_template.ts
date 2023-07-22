@@ -75,13 +75,13 @@ async function handler(
               span.end();
             }
           );
-
-          span.end();
         } catch (err: any) {
           app.log.error(err);
           span.recordException(err);
           span.setStatus({ code: SpanStatusCode.ERROR });
         }
+
+        span.end();
       }
     );
 

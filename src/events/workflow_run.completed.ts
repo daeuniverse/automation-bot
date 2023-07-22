@@ -55,6 +55,11 @@ async function handler(
   // instantiate span
   await tracer.startActiveSpan(
     "app.handler.workflow_run.completed.event_logging",
+    {
+      attributes: {
+        "workflow_run.name": metadata.workflow_run.name,
+      },
+    },
     async (span: Span) => {
       const logs = `received an workflow_run.completed event: ${JSON.stringify(
         metadata
@@ -134,7 +139,7 @@ async function handler(
             }
           );
 
-          // 1.2 update dae-wing sync pr description
+          // 1.3 update dae-wing sync pr description
           const syncPR = await tracer.startActiveSpan(
             `app.handler.workflow_run.completed.${syncTarget}.update_pr_context.update_pr_description`,
             {
@@ -190,7 +195,7 @@ ${prContext}
             }
           );
 
-          // 1.3 audit event
+          // 1.4 audit event
           await tracer.startActiveSpan(
             `app.handler.workflow_run.completed.${syncTarget}.update_pr_context.audit_event`,
             { attributes: { functionality: "audit event" } },
