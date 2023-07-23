@@ -200,7 +200,7 @@ ${prContext}
             `app.handler.workflow_run.completed.${syncTarget}.update_pr_context.audit_event`,
             { attributes: { functionality: "audit event" } },
             async (span: Span) => {
-              const msg = `⚡️ context of sync-upstream PR [(#${syncPR.number})](${syncPR.html_url}) in ${syncTarget} has been updated; upstream PR from ${syncSource} - [#${pr.number}: ${pr.title}](${pr.html_url}))`;
+              const msg = `⚡️ context of sync-upstream PR [(#${syncPR.number})](${syncPR.html_url}) in ${syncTarget} has been updated; upstream PR from ${syncSource} - [#${pr.number}: ${pr.title}](${pr.html_url})`;
               app.log.info(msg);
               await extension.tg.sendMsg(msg, [
                 process.env.TELEGRAM_DAEUNIVERSE_AUDIT_CHANNEL_ID!,
