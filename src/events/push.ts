@@ -91,8 +91,8 @@ async function handler(
               // https://docs.github.com/en/rest/actions/workflows?apiVersion=2022-11-28#create-a-workflow-dispatch-event
               const result = await extension.octokit.actions
                 .createWorkflowDispatch({
-                  repo: syncTarget,
                   owner: metadata.owner,
+                  repo: syncTarget,
                   workflow_id: "sync-upstream.yml",
                   ref: metadata.default_branch,
                 })
@@ -101,8 +101,8 @@ async function handler(
                   // https://octokit.github.io/rest.js/v18#actions-list-workflow-runs
                   extension.octokit.actions
                     .listWorkflowRuns({
-                      owner: syncTarget,
-                      repo: metadata.repo,
+                      owner: repo.owner,
+                      repo: syncTarget,
                       workflow_id: "sync-upstream.yml",
                       per_page: 1,
                     })
