@@ -16,6 +16,28 @@ export = {
   handler: handler as Handler,
 } as HandlerModule;
 
+const overwriteLabels = (input: string[]): string[] => {
+  return input.map((item) => {
+    if (item == "feat") item = "feature";
+    if (item == "docs" || item == "doc") item = "documentation";
+    return item;
+  });
+};
+
+const parseLabels = (input: string): string[] => {
+  const re = /^(?<type>\w+(\/\w+)*)(\((?<scope>.+)\))?:/;
+  const { type } = input.match(re)?.groups!;
+  const labels = type.split("/");
+
+  return labels.length > 1
+    ? overwriteLabels(
+        labels.map(
+          (label: string) => defaultLables.filter((x: string) => label === x)[0]
+        )
+      )
+    : overwriteLabels(defaultLables.filter((x: string) => type === x));
+};
+
 async function handler(
   context: Context<any>,
   app: Probot,
@@ -166,19 +188,7 @@ async function handler(
               },
               async (span: Span) => {
                 if (prOpenedLabels.length == 0) {
-                  let labels = defaultLables
-                    .filter((label: string) => {
-                      const re = /^(?<type>\w+)(\((?<scope>.+)\))?:/;
-                      const { type } =
-                        metadata.pull_request.title.match(re)?.groups!;
-                      return type === label;
-                    })
-                    .map((item) => {
-                      if (item == "feat") item = "feature";
-                      if (item == "docs" || item == "doc")
-                        item = "documentation";
-                      return item;
-                    });
+                  var labels = parseLabels(metadata.pull_request.title);
 
                   span.addEvent(
                     `label retrieved from pr.title: ${JSON.stringify(labels)}`
