@@ -6,6 +6,7 @@ export const defaultLables = [
   "feat",
   "feature",
   "patch",
+  "hotfix",
   "ci",
   "optimize",
   "refactor",
