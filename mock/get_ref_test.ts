@@ -18,15 +18,15 @@ const main = async () => {
     });
     const octokit = new Octokit({ auth: installationAuth.token });
 
-    // get ref object
-    // https://octokit.github.io/rest.js/v18#git-get-ref
+    // get commit ref
+    // https://octokit.github.io/rest.js/v18#git-get-commit
     const result = await octokit.rest.repos
-      .get({
+      .getCommit({
         owner: "daeuniverse",
         repo: "dae",
-        ref: `refs/tags/v0.2.2rc1`,
+        ref: "tags/v0.2.2rc1",
       })
-      .then((res) => res.data);
+      .then((res) => res.data.commit.author?.date);
     console.log(result);
   } catch (err: any) {
     console.log(err);
