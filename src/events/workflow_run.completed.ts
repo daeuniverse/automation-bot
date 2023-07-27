@@ -150,7 +150,9 @@ async function handler(
             },
             async (span: Span) => {
               const prContext = `${
-                pr.body?.split("### Checklist")[0].split(spliter)[1]
+                pr.body
+                  ? pr.body?.split("### Checklist")[0].split(spliter)[1]
+                  : "NA"
               }
       `.trim();
 
