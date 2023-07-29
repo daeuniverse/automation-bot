@@ -7,6 +7,7 @@ import {
   Result,
 } from "../common";
 import { Buffer } from "buffer";
+import prettier from "prettier";
 
 const Encode = (data: string): string =>
   // ensure utf-8 format
@@ -155,6 +156,8 @@ ${contentPlaceHolder}
 ${context.payload.issue.body.split("<!-- BEGIN CHANGELOGS -->")[1]}
 `.trim()
       );
+
+      changelogs = await prettier.format(changelogs, { parser: "markdown" });
 
       // 1.2 update CHANGELOGS.md in the release_branch
       // https://octokit.github.io/rest.js/v18#repos-create-or-update-file-contents
