@@ -17,4 +17,6 @@ export const defaultLables = [
   "chore",
 ];
 
+export const releaseCandidates = ["dae", "daed", "juicity"];
+
 export const strictLabels = defaultLables.slice(0, -5);
