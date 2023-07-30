@@ -23,8 +23,8 @@ const main = async () => {
     const result = await octokit.rest.repos
       .getCommit({
         owner: "daeuniverse",
-        repo: "dae",
-        ref: "tags/v0.2.2rc1",
+        repo: "daed",
+        ref: "refs/tags/v0.2.0",
       })
       .then((res) => res.data.commit.author?.date);
     console.log(result);
