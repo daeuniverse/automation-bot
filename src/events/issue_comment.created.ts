@@ -53,8 +53,8 @@ async function handler(
     // case_#1: dump release changelogs to release branch (e.g. release-v0.1.0)
     // 1.1 patch new changelogs into CHANGELOGS.md with regex
     if (
-      ["dae", "daed"].includes(metadata.repo) &&
-      metadata.comment.body.startsWith("@daebot") &&
+      ["dae", "daed", "juicity", "juicity-1"].includes(metadata.repo) &&
+      metadata.comment.body.includes("-bot") &&
       metadata.comment.body.includes("release-") &&
       metadata.issue.state == "closed" &&
       ["yqlbu", "kunish", "mzz2017"].includes(metadata.comment.user)
