@@ -175,9 +175,9 @@ ${syncPR.body}
 
 PR: <${pr.html_url}>
 
-Context:
+${(prContext ? "Context:" : "").trim()}
 
-${prContext}
+${(prContext ? prContext : "").trim()}
 
 ---
 `.trim();
