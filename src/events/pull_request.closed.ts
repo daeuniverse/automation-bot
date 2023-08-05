@@ -251,7 +251,7 @@ async function handler(
             "app.handler.pull_request.release_automation.merged.audit_event",
             { attributes: { functionality: "audit event" } },
             async (span: Span) => {
-              const msg = `🌌 PR - [#${metadata.pull_request.number}: ${metadata.pull_request.title}](${metadata.pull_request.html_url}) associated with ${metadata.pull_request.ref} in ${metadata.repo} has been merged; created and pushed a new release tag ${tag}; release build is now kicked off! just chill, we are getting there 💪; workflow run: ${workflowRunUrl}.`;
+              const msg = `🌌 ${metadata.repo} passed the release gate in PR [#${metadata.pull_request.number}: ${metadata.pull_request.title}](${metadata.pull_request.html_url}) associated with ${metadata.pull_request.ref}; created and pushed a new release tag ${tag}; release build is now kicked off! just chill, we are getting there 💪; workflow run: ${workflowRunUrl}.`;
               app.log.info(msg);
               span.addEvent(msg);
               await extension.tg.sendMsg(msg, [
