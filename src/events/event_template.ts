@@ -69,7 +69,7 @@ async function handler(
               const msg = `hello`;
               app.log.info(msg);
               await extension.tg.sendMsg(msg, [
-                process.env.TELEGRAM_DAEUNIVERSE_AUDIT_CHANNEL_ID!,
+                process.env.TELEGRAM_DAEUNIVERSE_AUDIT_GROUP_ID!,
               ]);
               span.addEvent(msg);
               span.end();

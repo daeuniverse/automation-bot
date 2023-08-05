@@ -205,7 +205,7 @@ ${(prContext ? prContext : "").trim()}
               const msg = `⚡️ context of sync-upstream PR [(#${syncPR.number})](${syncPR.html_url}) in ${syncTarget} has been updated; upstream PR from ${syncSource} - [#${pr.number}: ${pr.title}](${pr.html_url})`;
               app.log.info(msg);
               await extension.tg.sendMsg(msg, [
-                process.env.TELEGRAM_DAEUNIVERSE_AUDIT_CHANNEL_ID!,
+                process.env.TELEGRAM_DAEUNIVERSE_AUDIT_GROUP_ID!,
               ]);
               span.addEvent(msg);
               span.end();
