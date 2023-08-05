@@ -23,8 +23,8 @@ class TelegramClient {
 const main = async () => {
   dotenv.config({ path: ".env" });
   const tg = new TelegramClient();
-  const response = await tg.sendMsg("nihao!", [
-    process.env.TELEGRAM_DAEUNIVERSE_CHANNEL_ID as string,
+  const response = await tg.sendMsg("hello!", [
+    process.env.TELEGRAM_DAEUNIVERSE_INT_GROUP_ID as string,
   ]);
   console.log(response);
 };

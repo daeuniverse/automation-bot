@@ -43,6 +43,12 @@ async function handler(
     },
   };
 
+  const {
+    TELEGRAM_DAEUNIVERSE_AUDIT_GROUP_ID,
+    TELEGRAM_DAEUNIVERSE_CHANNEL_ID,
+    TELEGRAM_DAEUNIVERSE_INT_GROUP_ID,
+  } = process.env;
+
   // instantiate span
   await tracer.startActiveSpan(
     "app.handler.pull_request.closed.event_logging",
@@ -120,7 +126,7 @@ async function handler(
 
   // case_#2: create a release tag when release_branch is merged; ONLY with release:auto tag
   if (
-    ["dae", "daed"].includes(metadata.repo) &&
+    ["dae", "daed", "juicity"].includes(metadata.repo) &&
     metadata.pull_request.merged &&
     metadata.pull_request.ref.startsWith("release-v") &&
     metadata.pull_request.labels.includes("release:auto") &&
@@ -249,7 +255,9 @@ async function handler(
               app.log.info(msg);
               span.addEvent(msg);
               await extension.tg.sendMsg(msg, [
-                process.env.TELEGRAM_DAEUNIVERSE_AUDIT_GROUP_ID!,
+                TELEGRAM_DAEUNIVERSE_AUDIT_GROUP_ID!,
+                TELEGRAM_DAEUNIVERSE_CHANNEL_ID!,
+                TELEGRAM_DAEUNIVERSE_INT_GROUP_ID!,
               ]);
               span.end();
             }

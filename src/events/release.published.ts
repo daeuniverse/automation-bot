@@ -39,6 +39,7 @@ async function handler(
   const {
     TELEGRAM_DAEUNIVERSE_AUDIT_GROUP_ID,
     TELEGRAM_DAEUNIVERSE_CHANNEL_ID,
+    TELEGRAM_DAEUNIVERSE_INT_GROUP_ID,
   } = process.env;
 
   // instantiate span
@@ -79,13 +80,14 @@ async function handler(
           "app.handler.release.published.store_metrics",
           { attributes: { functionality: "store release metrics data to kv" } },
           async (span: Span) => {
-            const msg = `🌠 ${metadata.repo} published a new release [${metadata.release.tag}](${metadata.release.html_url}); it's been a long journey, thank you all for contributing to and supporting the [@daeuniverse](https://github.com/daeuniverse) community!`;
+            const msg = `🌠 ${metadata.repo} published a new release [${metadata.release.tag}](${metadata.release.html_url}); it's been a long journey, thank you all for contributing to and supporting the [${metadata.owner}](https://github.com/${metadata.owner}) community!`;
 
             app.log.info(msg);
             span.addEvent(msg);
             await extension.tg.sendMsg(msg, [
               TELEGRAM_DAEUNIVERSE_AUDIT_GROUP_ID!,
               TELEGRAM_DAEUNIVERSE_CHANNEL_ID!,
+              TELEGRAM_DAEUNIVERSE_INT_GROUP_ID!,
             ]);
 
             span.end();

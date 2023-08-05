@@ -163,6 +163,13 @@ ${context.payload.issue.body.split("<!-- BEGIN CHANGELOGS -->")[1]}
       // 1.2 update CHANGELOGS.md in the release_branch
       // https://octokit.github.io/rest.js/v18#repos-create-or-update-file-contents
       // https://stackoverflow.com/a/71130304
+      const actor = {
+        name: metadata.owner === "daeuniverse" ? "daebot" : "juicity-infra-svc",
+        email:
+          metadata.owner === "daeuniverse"
+            ? "dae@v2raya.org"
+            : "juicity@v2raya.org",
+      };
       await context.octokit.repos.createOrUpdateFileContents({
         owner: metadata.owner,
         repo: metadata.repo,
@@ -171,14 +178,8 @@ ${context.payload.issue.body.split("<!-- BEGIN CHANGELOGS -->")[1]}
         sha: originalCopy.sha,
         message: `ci: generate changelogs for ${releaseMetadata.branch}`,
         content: Encode(changelogs),
-        committer: {
-          name: "daebot",
-          email: "dae@v2raya.org",
-        },
-        author: {
-          name: "daebot",
-          email: "dae@v2raya.org",
-        },
+        committer: actor,
+        author: actor,
       });
 
       // 1.3 create a pull_request head_branch (release-v0.1.0) -> base_branch (origin/main)
