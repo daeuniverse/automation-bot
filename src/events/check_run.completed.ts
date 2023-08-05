@@ -175,7 +175,7 @@ async function handler(
               const msg = `🛫 The workflow run associated with PR - [#${pr.number}: ${pr.title}](${pr.html_url}) has passed all the required checks; automatically closed and merged. Check-run details: ${metadata.check_run.html_url}`;
               app.log.info(msg);
               await extension.tg.sendMsg(msg, [
-                process.env.TELEGRAM_DAEUNIVERSE_AUDIT_CHANNEL_ID!,
+                process.env.TELEGRAM_DAEUNIVERSE_AUDIT_GROUP_ID!,
               ]);
 
               span.addEvent(msg);

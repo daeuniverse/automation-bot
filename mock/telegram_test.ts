@@ -24,7 +24,7 @@ const main = async () => {
   dotenv.config({ path: ".env" });
   const tg = new TelegramClient();
   const response = await tg.sendMsg("nihao!", [
-    process.env.TELEGRAM_INFRA_DEV_CHANNEL_ID as string,
+    process.env.TELEGRAM_DAEUNIVERSE_CHANNEL_ID as string,
   ]);
   console.log(response);
 };

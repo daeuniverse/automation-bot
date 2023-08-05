@@ -102,7 +102,7 @@ async function handler(
               app.log.info(msg);
               span.addEvent(msg);
               await extension.tg.sendMsg(msg, [
-                process.env.TELEGRAM_DAEUNIVERSE_AUDIT_CHANNEL_ID!,
+                process.env.TELEGRAM_DAEUNIVERSE_AUDIT_GROUP_ID!,
               ]);
               span.end();
             }
@@ -249,7 +249,7 @@ async function handler(
               app.log.info(msg);
               span.addEvent(msg);
               await extension.tg.sendMsg(msg, [
-                process.env.TELEGRAM_DAEUNIVERSE_AUDIT_CHANNEL_ID!,
+                process.env.TELEGRAM_DAEUNIVERSE_AUDIT_GROUP_ID!,
               ]);
               span.end();
             }

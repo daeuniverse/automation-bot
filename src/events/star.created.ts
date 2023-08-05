@@ -86,7 +86,7 @@ async function handler(
               const msg = `⭐ Repo: ${metadata.repo} received a new star from [@${context.payload.sender.login}](${context.payload.sender.html_url})! Total stars: ${metadata.stargazers_count}`;
               app.log.info(msg);
               await extension.tg.sendMsg(msg, [
-                process.env.TELEGRAM_DAEUNIVERSE_AUDIT_CHANNEL_ID!,
+                process.env.TELEGRAM_DAEUNIVERSE_AUDIT_GROUP_ID!,
               ]);
               span.addEvent(msg);
               span.end();

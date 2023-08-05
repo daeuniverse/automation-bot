@@ -122,7 +122,7 @@ async function handler(
               const msg = `🏗️ a new commit was pushed to ${repo.name} (${metadata.default_branch}); dispatched ${syncBranch} workflow for ${syncTarget}; url: ${latestRunUrl}`;
               app.log.info(msg);
               await extension.tg.sendMsg(msg, [
-                process.env.TELEGRAM_DAEUNIVERSE_AUDIT_CHANNEL_ID!,
+                process.env.TELEGRAM_DAEUNIVERSE_AUDIT_GROUP_ID!,
               ]);
               span.addEvent(msg);
               span.end();
@@ -294,7 +294,7 @@ ${repo.name == "dae-wing" ? "## Changelogs" : ""}
             async (span: Span) => {
               app.log.info(msg);
               await extension.tg.sendMsg(msg, [
-                process.env.TELEGRAM_DAEUNIVERSE_AUDIT_CHANNEL_ID!,
+                process.env.TELEGRAM_DAEUNIVERSE_AUDIT_GROUP_ID!,
               ]);
               span.addEvent(msg);
               span.addEvent(JSON.stringify(pr));
