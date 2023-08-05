@@ -39,6 +39,7 @@ async function handler(
   const {
     TELEGRAM_DAEUNIVERSE_AUDIT_GROUP_ID,
     TELEGRAM_DAEUNIVERSE_CHANNEL_ID,
+    TELEGRAM_DAEUNIVERSE_INT_GROUP_ID,
   } = process.env;
 
   // instantiate span
@@ -86,6 +87,7 @@ async function handler(
             await extension.tg.sendMsg(msg, [
               TELEGRAM_DAEUNIVERSE_AUDIT_GROUP_ID!,
               TELEGRAM_DAEUNIVERSE_CHANNEL_ID!,
+              TELEGRAM_DAEUNIVERSE_INT_GROUP_ID!,
             ]);
 
             span.end();
