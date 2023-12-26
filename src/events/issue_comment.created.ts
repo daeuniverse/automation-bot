@@ -55,7 +55,7 @@ async function handler(
     // 1.1 patch new changelogs into CHANGELOGS.md with regex
     if (
       releaseCandidates.includes(metadata.repo) &&
-      metadata.comment.body.includes("-bot") &&
+      metadata.comment.body.startsWith("/release") &&
       metadata.comment.body.includes("release-") &&
       metadata.issue.state == "closed" &&
       ["yqlbu", "kunish", "mzz2017", "sumire88"].includes(metadata.comment.user)
