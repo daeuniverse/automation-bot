@@ -24,7 +24,7 @@ async function handler(
   context: Context<any>,
   app: Probot,
   repo: Repository,
-  extension: Extension
+  extension: Extension,
 ): Promise<Result> {
   const metadata = {
     repo: repo.name,
@@ -47,7 +47,7 @@ async function handler(
   };
 
   app.log.info(
-    `received an issue_comment.created event: ${JSON.stringify(metadata)}`
+    `received an issue_comment.created event: ${JSON.stringify(metadata)}`,
   );
 
   try {
@@ -58,7 +58,7 @@ async function handler(
       metadata.comment.body.includes("-bot") &&
       metadata.comment.body.includes("release-") &&
       metadata.issue.state == "closed" &&
-      ["yqlbu", "kunish", "mzz2017"].includes(metadata.comment.user)
+      ["yqlbu", "kunish", "mzz2017", "sumire88"].includes(metadata.comment.user)
     ) {
       const tocPlaceHolder = "<!-- BEGIN NEW TOC ENTRY -->";
       const contentPlaceHolder = "<!-- BEGIN NEW CHANGELOGS -->";
@@ -140,7 +140,7 @@ ${tocPlaceHolder}
         }](#${releaseMetadata.mdRefLink}${
           releaseMetadata.prerelease ? "-pre-release" : "-latest"
         })
-`.trim()
+`.trim(),
       );
 
       changelogs = changelogs.replace(
@@ -155,7 +155,7 @@ ${contentPlaceHolder}
 > Release date: ${releaseDate}
 
 ${context.payload.issue.body.split("<!-- BEGIN CHANGELOGS -->")[1]}
-`.trim()
+`.trim(),
       );
 
       changelogs = await prettier.format(changelogs, { parser: "markdown" });
