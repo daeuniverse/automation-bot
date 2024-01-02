@@ -1,4 +1,4 @@
-# dae-bot
+# automation-bot
 
 > A GitHub App built with [Probot](https://github.com/probot/probot) serves to support [daeuniverse](https://github.com/daeuniverse).
 
