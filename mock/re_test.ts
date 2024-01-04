@@ -11,4 +11,4 @@ const useRegex = (input: string) => {
   }
 };
 
-console.log(useRegex("@daebot proceed to release-v0.1.0rc2"));
+console.log(useRegex("/release proceed to release-v0.1.0rc2"));

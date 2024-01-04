@@ -19,7 +19,7 @@ async function handler(
   context: Context<any>,
   app: Probot,
   repo: Repository,
-  extension: Extension
+  extension: Extension,
 ): Promise<Result> {
   const head_commit = JSON.stringify(context.payload?.head_commit);
   const syncBranch = "sync-upstream";
@@ -36,7 +36,7 @@ async function handler(
       app.log.info(logs);
       span.addEvent(logs);
       span.end();
-    }
+    },
   );
 
   // case_#1 trigger sync_target.sync-upstream workflow if new changes are pushed to [dae|dae-wing] origin/main
@@ -75,7 +75,7 @@ async function handler(
             },
             async (span: Span) => {
               span.end();
-            }
+            },
           );
 
           // 1.2 trigger sync_target sync-upstream-source workflow
@@ -106,12 +106,12 @@ async function handler(
                       workflow_id: "sync-upstream.yml",
                       per_page: 1,
                     })
-                    .then((res) => res.data.workflow_runs[0].html_url)
+                    .then((res) => res.data.workflow_runs[0].html_url),
                 );
 
               span.end();
               return result;
-            }
+            },
           );
 
           // 1.4 audit event
@@ -126,7 +126,7 @@ async function handler(
               ]);
               span.addEvent(msg);
               span.end();
-            }
+            },
           );
         } catch (err: any) {
           app.log.error(err);
@@ -135,7 +135,7 @@ async function handler(
         }
 
         span.end();
-      }
+      },
     );
   }
 
@@ -173,7 +173,7 @@ async function handler(
             },
             async (span: Span) => {
               span.end();
-            }
+            },
           );
 
           // 1.2 fetch latest sync-upstream workflow run
@@ -197,12 +197,12 @@ async function handler(
 
               span.end();
               return result;
-            }
+            },
           );
 
           // 1.3 create a pull_request with head (sync-upstream) and base (main) for daed
           const msg =
-            `⏳ ${repo.name} (origin/${metadata.default_branch}) is currently out-of-sync to ${syncSource} (origin/${metadata.default_branch}); changes are proposed by @daebot in actions - ${latestWorkflowRun}
+            `⏳ ${repo.name} (origin/${metadata.default_branch}) is currently out-of-sync to ${syncSource} (origin/${metadata.default_branch}); changes are proposed by [@dae-prow-robot](https://github.com/dae-prow-robot) in actions - ${latestWorkflowRun}
 `.trim();
 
           const pr = await tracer.startActiveSpan(
@@ -242,7 +242,7 @@ async function handler(
                       });
 
                       span.end();
-                    }
+                    },
                   );
 
                   // 1.3.2 add assignee
@@ -259,11 +259,11 @@ async function handler(
                         owner: metadata.owner,
                         repo: metadata.repo,
                         issue_number: res.data.number,
-                        assignees: ["daebot"],
+                        assignees: ["dae-prow-robot"],
                       });
 
                       span.end();
-                    }
+                    },
                   );
 
                   return {
@@ -279,7 +279,7 @@ async function handler(
               span.addEvent(JSON.stringify(result));
               span.end();
               return result;
-            }
+            },
           );
 
           // 1.4 audit event
@@ -294,7 +294,7 @@ async function handler(
               span.addEvent(msg);
               span.addEvent(JSON.stringify(pr));
               span.end();
-            }
+            },
           );
         } catch (err: any) {
           app.log.error(err);
@@ -303,7 +303,7 @@ async function handler(
         }
 
         span.end();
-      }
+      },
     );
   }
 

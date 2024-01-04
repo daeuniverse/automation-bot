@@ -32,8 +32,9 @@ const parseLabels = (input: string): string[] => {
   return labels.length > 1
     ? overwriteLabels(
         labels.map(
-          (label: string) => defaultLables.filter((x: string) => label === x)[0]
-        )
+          (label: string) =>
+            defaultLables.filter((x: string) => label === x)[0],
+        ),
       )
     : overwriteLabels(defaultLables.filter((x: string) => type === x));
 };
@@ -42,7 +43,7 @@ async function handler(
   context: Context<any>,
   app: Probot,
   repo: Repository,
-  extension: Extension
+  extension: Extension,
 ): Promise<Result> {
   const metadata = {
     repo: repo.name,
@@ -63,12 +64,12 @@ async function handler(
     "app.handler.pull_request.opened.event_logging",
     async (span: Span) => {
       const msg = `received a pull_request.opened event: ${JSON.stringify(
-        metadata
+        metadata,
       )}`;
       app.log.info(msg);
       span.addEvent(msg);
       span.end();
-    }
+    },
   );
 
   // case_#1: automatically assign assignee if not present
@@ -83,7 +84,7 @@ async function handler(
       try {
         // https://octokit.github.io/rest.js/v18#issues-add-assignees
         const author = metadata.pull_request.author.includes("bot")
-          ? "daebot"
+          ? "dae-prow-robot"
           : metadata.pull_request.author;
 
         // 1.1 assign pull_request author to be the default assignee
@@ -103,7 +104,7 @@ async function handler(
             });
             span.addEvent(`add default assignee: ${author}`);
             span.end();
-          }
+          },
         );
 
         // 1.2 audit event
@@ -123,7 +124,7 @@ async function handler(
               process.env.TELEGRAM_DAEUNIVERSE_AUDIT_GROUP_ID!,
             ]);
             span.end();
-          }
+          },
         );
       } catch (err: any) {
         app.log.error(err);
@@ -132,7 +133,7 @@ async function handler(
       }
 
       span.end();
-    }
+    },
   );
 
   // case_#2: automatically assign label if not present, default label should align with "kind" as part of the pr title
@@ -175,7 +176,7 @@ async function handler(
                 span.addEvent(JSON.stringify(result));
                 span.end();
                 return result;
-              }
+              },
             );
 
             await tracer.startActiveSpan(
@@ -191,7 +192,7 @@ async function handler(
                   var labels = parseLabels(metadata.pull_request.title);
 
                   span.addEvent(
-                    `label retrieved from pr.title: ${JSON.stringify(labels)}`
+                    `label retrieved from pr.title: ${JSON.stringify(labels)}`,
                   );
 
                   if (labels.length > 0) {
@@ -207,7 +208,7 @@ async function handler(
                       async (span: Span) => {
                         if (
                           strictLabels.filter((label) =>
-                            metadata.pull_request.title.startsWith(label)
+                            metadata.pull_request.title.startsWith(label),
                           ).length > 0
                         ) {
                           // add "not-yet-tested label"
@@ -215,8 +216,8 @@ async function handler(
 
                           span.addEvent(
                             `label not-yet-tested has been added; current labels: ${JSON.stringify(
-                              labels
-                            )}`
+                              labels,
+                            )}`,
                           );
 
                           // if (["dae", "daed"].includes(metadata.repo)) {
@@ -247,7 +248,7 @@ async function handler(
                         }
 
                         span.end();
-                      }
+                      },
                     );
 
                     // 1.2 add labels
@@ -269,7 +270,7 @@ async function handler(
                         });
 
                         span.end();
-                      }
+                      },
                     );
 
                     // 1.3 audit event
@@ -294,17 +295,17 @@ async function handler(
                         ]);
 
                         span.end();
-                      }
+                      },
                     );
                   }
                 }
 
                 span.end();
-              }
+              },
             );
 
             span.end();
-          }
+          },
         );
       } catch (err: any) {
         app.log.error(err);
@@ -313,42 +314,8 @@ async function handler(
       }
 
       span.end();
-    }
+    },
   );
-
-  // case_#3: assign daebot as one of the reviewers
-  // if (
-  //   strictLabels.filter((label: string) =>
-  //     metadata.pull_request.title.startsWith(label)
-  //   ).length > 0
-  // ) {
-  //   await tracer.startActiveSpan(
-  //     "app.handler.pull_request.opened.assign_dae_bot_as_reviewers",
-  //     {
-  //       attributes: {
-  //         case: "assign daebot as one of the reviewers",
-  //       },
-  //     },
-  //     async (span: Span) => {
-  //       try {
-  //         // 1.1 assign daebot as one of the reviewers
-  //         // https://octokit.github.io/rest.js/v18#pulls-request-reviewers
-  //         await extension.octokit.pulls.requestReviewers({
-  //           repo: metadata.repo,
-  //           owner: metadata.owner,
-  //           pull_number: metadata.pull_request.number,
-  //           reviewers: ["dae-bot[bot]"],
-  //         });
-  //       } catch (err: any) {
-  //         app.log(err);
-  //         span.recordException(err);
-  //         span.setStatus({ code: SpanStatusCode.ERROR });
-  //       }
-
-  //       span.end();
-  //     }
-  //   );
-  // }
 
   return { result: "ok!" };
 }
