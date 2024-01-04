@@ -16,7 +16,7 @@ const main = async () => {
       owner: "daeuniverse",
       repo: "dae-1",
       issue_number: 3,
-      assignees: ["daebot"],
+      assignees: ["dae-prow-robot"],
     });
   } catch (err: any) {
     console.log(err);
